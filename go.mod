@@ -1,4 +1,4 @@
-module thinkix/bot
+module thinkix-bot
 
 go 1.23.5
 

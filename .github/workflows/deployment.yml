@@ -1,0 +1,39 @@
+name: Deploy Bot
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get rep code
+        uses: actions/checkout@v3
+      
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.22'
+
+      - name: Build
+        run: go build -v
+
+      - name: Copy single file to remote
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          source: thinkix-bot
+          target: thinkix-bot
+          host: ${{ secrets.SERVER_ADDR }}
+          username: ${{ secrets.SERVER_USR }}
+          password: ${{ secrets.SERVER_PWD }}
+
+      - name: multiple command
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_ADDR }}
+          username: ${{ secrets.SERVER_USR }}
+          password: ${{ secrets.SERVER_PWD }}
+          script: |
+            chmod +rwx thinkix-bot/thinkix-bot
+            sudo systemctl restart thinkix-bot
